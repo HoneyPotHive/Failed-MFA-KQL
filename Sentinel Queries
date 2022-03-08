@@ -1,0 +1,48 @@
+// Grabs Count for failed MFA Challenge and display over timeline and Failurecount of all users
+SigninLogs
+| where ResultType == 50074
+| project
+    UserDisplayName,
+    Identity,
+    UserPrincipalName,
+    ResultDescription,
+    AppDisplayName,
+    AppId,
+    ResourceDisplayName,
+    TimeGenerated 
+| where TimeGenerated between (ago(90d) .. now())
+| where isnotempty(Location)
+| summarize
+    FailureCount=count(),
+    FailedResources=dcount(ResourceDisplayName),
+    ResultDescription=any(ResultDescription)
+    by Timeline=bin(TimeGenerated, 7d), UserDisplayName
+| render timechart
+
+// ==========================================================================================
+// ==========================================================================================
+
+// Grabs Count for failed MFA Challenge and display over timeline and Failurecount.
+// Grabs only those outside of US
+
+SigninLogs
+| where ResultType == 50074
+| project
+    UserDisplayName,
+    Identity,
+    UserPrincipalName,
+    ResultDescription,
+    AppDisplayName,
+    AppId,
+    ResourceDisplayName,
+    TimeGenerated,
+    Location 
+| where TimeGenerated between (ago(90d) .. now())
+| where Location != "US"
+| where isnotempty(Location)
+| summarize
+    FailureCount=count(),
+    FailedResources=dcount(ResourceDisplayName),
+    ResultDescription=any(ResultDescription), Location=any(Location)
+    by Timeline=bin(TimeGenerated, 7d), UserDisplayName
+| render timechart 
