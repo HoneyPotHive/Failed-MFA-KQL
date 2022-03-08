@@ -17,7 +17,8 @@ SigninLogs
     FailedResources=dcount(ResourceDisplayName),
     ResultDescription=any(ResultDescription)
     by Timeline=bin(TimeGenerated, 7d), UserDisplayName
-| render timechart
+| render 
+    barchart with(kind=unstacked)
 
 // ==========================================================================================
 // ==========================================================================================
@@ -45,4 +46,5 @@ SigninLogs
     FailedResources=dcount(ResourceDisplayName),
     ResultDescription=any(ResultDescription), Location=any(Location)
     by Timeline=bin(TimeGenerated, 7d), UserDisplayName
-| render timechart 
+| render 
+    barchart with(kind=unstacked)
