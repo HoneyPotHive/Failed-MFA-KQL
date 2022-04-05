@@ -1,50 +1,49 @@
-// Grabs Count for failed MFA Challenge and display over timeline and Failurecount of all users
+
+// Grabs count for failed MFA challenge and display them oer a timeline and fail count.
+// Grabs only out of US
+///////////////////////////
+
+/// Azure Advance Hunting
+///////////////////////////
+AADSignEventsBeta
+| project
+    AadDeviceID,
+    AccountDisplayName,
+    ErrorCode,
+    Timestamp,
+    County,
+    State
+| where Timestap >= ago(1d) //change time in ago to query further back
+| where Country != "US"
+| where isnotempty(Country)
+| where ErrorCode == "50074"
+| summarze
+    FailedMFA=count() by AccountDisplayName
+| render
+    columnchart with(kind=unstacked)
+
+
+/// Azure Sentinel
+///////////////////////////
 SigninLogs
-| where ResultType == 50074
+| where ResultType == "50074"
 | project
     UserDisplayName,
     Identity,
-    UserPrincipalName,
+    UserPrincipleName,
     ResultDescription,
-    AppDisplayName,
-    AppId,
-    ResourceDisplayName,
-    TimeGenerated 
-| where TimeGenerated between (ago(90d) .. now())
-| where isnotempty(Location)
-| summarize
-    FailureCount=count(),
-    FailedResources=dcount(ResourceDisplayName),
-    ResultDescription=any(ResultDescription)
-    by Timeline=bin(TimeGenerated, 7d), UserDisplayName
-| render 
-    barchart with(kind=unstacked)
-
-// ==========================================================================================
-// ==========================================================================================
-
-// Grabs Count for failed MFA Challenge and display over timeline and Failurecount.
-// Grabs only those outside of US
-
-SigninLogs
-| where ResultType == 50074
-| project
-    UserDisplayName,
-    Identity,
-    UserPrincipalName,
-    ResultDescription,
-    AppDisplayName,
-    AppId,
+    AppDescription,
+    AppID,
     ResourceDisplayName,
     TimeGenerated,
-    Location 
-| where TimeGenerated between (ago(90d) .. now())
+    Location
+| where TimeGenerated between (ago(1d) .. now()) //change time in ago to query further back
 | where Location != "US"
 | where isnotempty(Location)
-| summarize
+| summarze
     FailureCount=count(),
     FailedResources=dcount(ResourceDisplayName),
     ResultDescription=any(ResultDescription), Location=any(Location)
     by Timeline=bin(TimeGenerated, 7d), UserDisplayName
-| render 
-    barchart with(kind=unstacked)
+| render
+    barchat with(kind=unstacked)
