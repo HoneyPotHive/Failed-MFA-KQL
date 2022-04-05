@@ -12,15 +12,23 @@ AADSignEventsBeta
     ErrorCode,
     Timestamp,
     County,
-    State
+    State,
+    DeviceName,
+    ReportID
 | where Timestap >= ago(1d) //change time in ago to query further back
 | where Country != "US"
 | where isnotempty(Country)
 | where ErrorCode == "50074"
+/// data for detection rule
+///////////////////////////
 | summarze
-    FailedMFA=count() by AccountDisplayName
-| render
-    columnchart with(kind=unstacked)
+    FailedMFA=count() by AccountDisplayName, ReportID, Timestamp, Country, DeviceName
+/// Generate columnchart for visual
+///////////////////////////
+//| summarze
+//    FailedMFA=count() by AccountDisplayName
+//| render
+//    columnchart with(kind=unstacked)
 
 
 /// Azure Sentinel
