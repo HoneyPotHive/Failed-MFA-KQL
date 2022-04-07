@@ -5,31 +5,34 @@
 
 /// Azure Advance Hunting
 ///////////////////////////
-AADSignEventsBeta
+AADSignInEventsBeta
 | project
-    AadDeviceID,
+    AadDeviceId,
     AccountDisplayName,
     ErrorCode,
     Timestamp,
-    County,
+    Country,
     State,
     DeviceName,
-    ReportID
-| where Timestap >= ago(1d) //change time in ago to query further back
-| where Country != "US"
-| where isnotempty(Country)
-| where ErrorCode == "50074"
+    ReportId
+| where 
+    Timestamp >= ago(7d) //change time in ago to query further back
+| where 
+    Country != "US"
+| where 
+    isnotempty(Country)
+| where 
+    ErrorCode == "50074"
 /// data for detection rule
 ///////////////////////////
 | summarze
     FailedMFA=count() by AccountDisplayName, ReportID, Timestamp, Country, DeviceName
 /// Generate columnchart for visual
 ///////////////////////////
-//| summarze
-//    FailedMFA=count() by AccountDisplayName
+//| summarize 
+//   FailedMFA=count() by AccountDisplayName, Country
 //| render
-//    columnchart with(kind=unstacked)
-
+ //   columnchart with(kind=unstacked)
 
 /// Azure Sentinel
 ///////////////////////////
