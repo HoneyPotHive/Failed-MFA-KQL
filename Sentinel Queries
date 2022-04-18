@@ -41,20 +41,20 @@ SigninLogs
 | project
     UserDisplayName,
     Identity,
-    UserPrincipleName,
+    UserPrincipalName,
     ResultDescription,
-    AppDescription,
-    AppID,
+    AppDisplayName,
+    AppId,
     ResourceDisplayName,
     TimeGenerated,
     Location
 | where TimeGenerated between (ago(1d) .. now()) //change time in ago to query further back
 | where Location != "US"
 | where isnotempty(Location)
-| summarze
+| summarize 
     FailureCount=count(),
     FailedResources=dcount(ResourceDisplayName),
     ResultDescription=any(ResultDescription), Location=any(Location)
     by Timeline=bin(TimeGenerated, 7d), UserDisplayName
 | render
-    barchat with(kind=unstacked)
+    barchart with(kind=unstacked)
